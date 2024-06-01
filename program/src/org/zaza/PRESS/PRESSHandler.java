@@ -14,12 +14,14 @@ public class PRESSHandler {
         while (i < chunks) {
             if (secretInByte.length % chunks == 0) {
                 pecahanRahasia = Arrays.copyOfRange(secretInByte, counter, counter+(secretInByte.length/chunks));
-                result[i] = new BigInteger(pecahanRahasia);                    
+                // result[i] = new BigInteger(pecahanRahasia);                    
+                result[i] = new BigInteger(HelperTools.prependWithZero(pecahanRahasia));                    
                 counter += (secretInByte.length/chunks);
             }
             else{
                 pecahanRahasia = Arrays.copyOfRange(secretInByte, counter, (counter + 1) + (secretInByte.length/chunks));
-                result[i] = new BigInteger(pecahanRahasia);                    
+                // result[i] = new BigInteger(pecahanRahasia);                    
+                result[i] = new BigInteger(HelperTools.prependWithZero(pecahanRahasia));                    
                 counter += (secretInByte.length/chunks) + 1;
             }
             i++;
@@ -33,11 +35,21 @@ public class PRESSHandler {
         int counter = 0;
         int i = 0;
         while (i < chunks.length) {
-            System.arraycopy(chunks[i].toByteArray(), 0, tmpJoinedData, counter, chunks[i].toByteArray().length);
-            counter += chunks[i].toByteArray().length;
+            byte[] chunk = chunks[i].toByteArray();
+            int chunkLength = chunk.length;
+            if (chunk[0] == (byte)0x00) {
+                chunkLength -= 1;
+                System.arraycopy(chunks[i].toByteArray(), 1, tmpJoinedData, counter, chunkLength);                
+            }
+            else {
+                System.arraycopy(chunks[i].toByteArray(), 0, tmpJoinedData, counter, chunkLength);
+            }
+            // counter += chunks[i].toByteArray().length;
+            counter += chunkLength;
             i++;
         }
-
+        // System.out.println("tmpJoinedData:");
+        // HelperTools.printUnsignedByteArray(tmpJoinedData);
         byte[] joinedData = new byte[secretLength];
         System.arraycopy(tmpJoinedData, 0, joinedData, 0, secretLength);
         return joinedData;
@@ -375,6 +387,24 @@ public class PRESSHandler {
                             
         }
 
+        // BigInteger[] result = new BigInteger[P];
+        // int share = 0;
+        // for(int i = P; i >= 1; i--) {
+        //     if (i == P) {
+        //         share = t;
+        //     }
+        //     else if (i == (P-1)) {
+        //         share = P;
+        //     }
+        //     else if (i < (P-1)) {
+        //         share = i+1;
+        //     }
+        //     xs = Arrays.copyOfRange(xs, 0, share);
+        //     ys = Arrays.copyOfRange(ys, 0, share);
+        //     BigInteger[] priorPoly = getPolynomial(xs, ys, prime);
+        //     result[i-1] = priorPoly[(priorPoly.length-1)]; 
+        //     ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));
+        // }
         BigInteger[] result = new BigInteger[P];
         BigInteger[] priorPoly = null;
         int share = 0;

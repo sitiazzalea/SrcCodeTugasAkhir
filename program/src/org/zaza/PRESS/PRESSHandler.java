@@ -6,7 +6,7 @@ import org.zaza.utils.*;;
 
 public class PRESSHandler {
     
-    public static BigInteger[] split(byte[] secretInByte, int chunks) {
+    private static BigInteger[] split(byte[] secretInByte, int chunks) {
         BigInteger[] result = new BigInteger[chunks];
         int counter = 0;
         int i = 0;
@@ -29,7 +29,7 @@ public class PRESSHandler {
         return result;
     }
 
-    public static byte[] join(BigInteger[] chunks, int secretLength) {        
+    private static byte[] join(BigInteger[] chunks, int secretLength) {        
         byte[] tmpJoinedData = new byte[chunks.length * chunks[0].toByteArray().length];
 
         int counter = 0;
@@ -55,12 +55,12 @@ public class PRESSHandler {
         return joinedData;
     }
 
-    public static BigInteger nextPrime(BigInteger input) {
+    private static BigInteger nextPrime(BigInteger input) {
         BigInteger result = input.nextProbablePrime();
         return result;
     }
 
-    public static BigInteger findLargestChunk(BigInteger[] chunks) {
+    private static BigInteger findLargestChunk(BigInteger[] chunks) {
         BigInteger largest = new BigInteger("0");
         for (int i = 0; i < chunks.length; i++) {
             if (chunks[i].compareTo(largest) == 1) {
@@ -70,15 +70,15 @@ public class PRESSHandler {
         return largest;
     }
 
-    public static BigInteger addMod(BigInteger a, BigInteger b, BigInteger primeNum) {
+    private static BigInteger addMod(BigInteger a, BigInteger b, BigInteger primeNum) {
         return (a.add(b)).mod(primeNum);
     }
 
-    public static BigInteger mulMod(BigInteger a, BigInteger b, BigInteger primeNum) {
+    private static BigInteger mulMod(BigInteger a, BigInteger b, BigInteger primeNum) {
         return (a.multiply(b)).mod(primeNum);
     }
 
-    public static BigInteger generateRandomCoefficients(BigInteger prime) {
+    private static BigInteger generateRandomCoefficients(BigInteger prime) {
         BigInteger maxLimit = prime;
         BigInteger minLimit = new BigInteger("1");
         BigInteger bigInteger = maxLimit.subtract(minLimit);
@@ -92,7 +92,7 @@ public class PRESSHandler {
         return res;
     }    
 
-    public static BigInteger[] generatePoly(BigInteger prime, int degree, BigInteger chunk) {
+    private static BigInteger[] generatePoly(BigInteger prime, int degree, BigInteger chunk) {
         BigInteger[] poly = new BigInteger[degree+1];
         for (int i = 0; i < poly.length; i++) {
             poly[i] = generateRandomCoefficients(prime);
@@ -103,7 +103,7 @@ public class PRESSHandler {
         return poly;
     }
 
-    public static BigInteger createShare(BigInteger[] poly, BigInteger x, BigInteger primeNum) {
+    private static BigInteger createShare(BigInteger[] poly, BigInteger x, BigInteger primeNum) {
         BigInteger result = new BigInteger("0");
         for (int i = poly.length-1; i >= 0 ; i--) {
             result = addMod(mulMod(result, x, primeNum), poly[i], primeNum);
@@ -111,7 +111,7 @@ public class PRESSHandler {
         return result;
     }
 
-    public static BigInteger[] createShares(BigInteger[] poly, int numberShare, BigInteger primeNum) {
+    private static BigInteger[] createShares(BigInteger[] poly, int numberShare, BigInteger primeNum) {
         BigInteger[] hasilShares = new BigInteger[numberShare];
         // System.out.println("Shares: ");
         for (int i = 1; i <= numberShare; i++) {
@@ -123,7 +123,7 @@ public class PRESSHandler {
  
     // UP FROM multiplyPolynomials TO getPolynomial function IS FOR LAGRANGE INTERPOLATION
 
-    public static BigInteger[] multiplyPolynomials(BigInteger[] a, BigInteger[] b, BigInteger primeNum) {
+    private static BigInteger[] multiplyPolynomials(BigInteger[] a, BigInteger[] b, BigInteger primeNum) {
         int degA = a.length;
         int degB = b.length;
         BigInteger[] result = new BigInteger[degA + degB - 1];
@@ -141,7 +141,7 @@ public class PRESSHandler {
         return result;
     }
 
-    public static BigInteger[] addPolynomials(BigInteger[] a, BigInteger[] b, BigInteger prime) {
+    private static BigInteger[] addPolynomials(BigInteger[] a, BigInteger[] b, BigInteger prime) {
         BigInteger[] result = new BigInteger[a.length];
         for (int i = 0; i < result.length; i++) {
             result[i] = addMod(a[i], b[i], prime);
@@ -149,7 +149,7 @@ public class PRESSHandler {
         return result;
     }
 
-    public static BigInteger[] getDeltaPolynomial(BigInteger[] xs, int xpos, BigInteger prime) {
+    private static BigInteger[] getDeltaPolynomial(BigInteger[] xs, int xpos, BigInteger prime) {
         BigInteger[] poly = {BigInteger.ONE};
         BigInteger denom = BigInteger.ONE;
 
@@ -164,7 +164,7 @@ public class PRESSHandler {
         return scalePoly(poly, denom.modInverse(prime), prime);
     }
 
-    public static BigInteger[] scalePoly(BigInteger[] poly, BigInteger denom, BigInteger prime) {
+    private static BigInteger[] scalePoly(BigInteger[] poly, BigInteger denom, BigInteger prime) {
         BigInteger[] result = new BigInteger[poly.length];
         // denom = denom.modInverse(prime);
         for (int i = 0; i < poly.length; i++) {
@@ -173,7 +173,7 @@ public class PRESSHandler {
         return result;
     } 
 
-    public static BigInteger[] getPolynomial(BigInteger[] xs, BigInteger[] ys, BigInteger prime) {
+    private static BigInteger[] getPolynomial(BigInteger[] xs, BigInteger[] ys, BigInteger prime) {
         int degree = xs.length;
         BigInteger[][] deltas = new BigInteger[degree][degree];
         BigInteger[] result = new BigInteger[degree];
@@ -197,33 +197,33 @@ public class PRESSHandler {
 
     }
 
-    public static BigInteger[] dealPhase(BigInteger[] chunks, BigInteger primeNum, int P, int t, int n) {
-        // BigInteger[] polynomial = {chunks[0], new BigInteger("263")};
-        // BigInteger[] polynomial = {chunks[0], new BigInteger("22")};
-        BigInteger[] polynomial = generatePoly(primeNum, 1, chunks[0]);
-        BigInteger[] shares = null;
-        for (int i = 1; i <= P; i++) {
-            int shareNumber = 0;
-            if (i <= (P-2)) {
-                shareNumber = i + 1;
-            }
-            else if (i == (P-1)) {
-                shareNumber = t-1;
-            }
-            else if (i == P) {
-                shareNumber = n;
-            }
-            shares = createShares(polynomial, shareNumber, primeNum);
-            ArrayList<BigInteger> sharesList = new ArrayList<>(Arrays.asList(shares));
-            if (i < P) {
-                sharesList.add(0, chunks[i]);                
-            }
-            polynomial = sharesList.toArray(polynomial);
-        }
-        return shares;
-    }
+    // public static BigInteger[] dealPhase(BigInteger[] chunks, BigInteger primeNum, int P, int t, int n) {
+    //     // BigInteger[] polynomial = {chunks[0], new BigInteger("263")};
+    //     // BigInteger[] polynomial = {chunks[0], new BigInteger("22")};
+    //     BigInteger[] polynomial = generatePoly(primeNum, 1, chunks[0]);
+    //     BigInteger[] shares = null;
+    //     for (int i = 1; i <= P; i++) {
+    //         int shareNumber = 0;
+    //         if (i <= (P-2)) {
+    //             shareNumber = i + 1;
+    //         }
+    //         else if (i == (P-1)) {
+    //             shareNumber = t-1;
+    //         }
+    //         else if (i == P) {
+    //             shareNumber = n;
+    //         }
+    //         shares = createShares(polynomial, shareNumber, primeNum);
+    //         ArrayList<BigInteger> sharesList = new ArrayList<>(Arrays.asList(shares));
+    //         if (i < P) {
+    //             sharesList.add(0, chunks[i]);                
+    //         }
+    //         polynomial = sharesList.toArray(polynomial);
+    //     }
+    //     return shares;
+    // }
 
-    public static List<List<TLV>> dealSecret(BigInteger[] chunks, BigInteger primeNum, int secretLength, int P, int t, int n) {
+    public static List<List<TLV>> dealPhase(BigInteger[] chunks, BigInteger primeNum, int secretLength, int P, int t, int n) {
         BigInteger[] polynomial = generatePoly(primeNum, 1, chunks[0]);
         BigInteger[] shares = null;
         for (int i = 1; i <= P; i++) {
@@ -284,7 +284,15 @@ public class PRESSHandler {
         return tlvShares;
     }
 
-    public static BigInteger[] reverse(BigInteger a[]) 
+    public static List<List<TLV>> dealSecret(byte[] arr, int P, int t, int n) {
+        BigInteger[] chunks = split(arr, P);
+        BigInteger largestChunk = findLargestChunk(chunks);
+        BigInteger prime = nextPrime(largestChunk);
+        List<List<TLV>> result = PRESSHandler.dealPhase(chunks, prime, arr.length, P, t, n);
+        return result;
+    }
+
+    private static BigInteger[] reverse(BigInteger a[]) 
     { 
         ArrayList<BigInteger> aList = new ArrayList<>(Arrays.asList(a));
         Collections.reverse(aList); 
@@ -295,37 +303,37 @@ public class PRESSHandler {
         return arrAfterArrList;
     } 
 
-    public static BigInteger[] reconstructPhase(BigInteger[] xs, BigInteger[] ys, BigInteger prime, int P, int t, int n) {
-        BigInteger[] result = new BigInteger[P];
-        BigInteger[] priorPoly = null;
-        int share = 0;
-        for(int i = P; i >= 1; i--) {
-            if (i == P) {
-                share = t;
-                priorPoly = getPolynomial(xs, ys, prime);
-                result[i-1] = priorPoly[(priorPoly.length-1)]; 
-                ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));
-                continue;
-            }
-            else {
-                if (i == (P-1)) {
-                    share = P;
-                }
-                else if (i < (P-1)) {
-                    share = i+1;
-                }
-                ys = Arrays.copyOfRange(ys, 0, share);
-                BigInteger[] xAfterFirstLagrange = new BigInteger[ys.length];
-                for (int j = 0; j < ys.length; j++) {
-                    xAfterFirstLagrange[j] = BigInteger.valueOf(j + 1);
-                }
-                priorPoly = getPolynomial(xAfterFirstLagrange, ys, prime);
-                result[i-1] = priorPoly[(priorPoly.length-1)]; 
-                ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));    
-            }
-        }
-        return result;
-    }
+    // private static BigInteger[] reconstructPhase(BigInteger[] xs, BigInteger[] ys, BigInteger prime, int P, int t, int n) {
+    //     BigInteger[] result = new BigInteger[P];
+    //     BigInteger[] priorPoly = null;
+    //     int share = 0;
+    //     for(int i = P; i >= 1; i--) {
+    //         if (i == P) {
+    //             share = t;
+    //             priorPoly = getPolynomial(xs, ys, prime);
+    //             result[i-1] = priorPoly[(priorPoly.length-1)]; 
+    //             ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));
+    //             continue;
+    //         }
+    //         else {
+    //             if (i == (P-1)) {
+    //                 share = P;
+    //             }
+    //             else if (i < (P-1)) {
+    //                 share = i+1;
+    //             }
+    //             ys = Arrays.copyOfRange(ys, 0, share);
+    //             BigInteger[] xAfterFirstLagrange = new BigInteger[ys.length];
+    //             for (int j = 0; j < ys.length; j++) {
+    //                 xAfterFirstLagrange[j] = BigInteger.valueOf(j + 1);
+    //             }
+    //             priorPoly = getPolynomial(xAfterFirstLagrange, ys, prime);
+    //             result[i-1] = priorPoly[(priorPoly.length-1)]; 
+    //             ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));    
+    //         }
+    //     }
+    //     return result;
+    // }
 
     public static byte[] reconstructData(List<List<TLV>> parts) {
         BigInteger[] xs = new BigInteger[parts.size()];
@@ -387,24 +395,6 @@ public class PRESSHandler {
                             
         }
 
-        // BigInteger[] result = new BigInteger[P];
-        // int share = 0;
-        // for(int i = P; i >= 1; i--) {
-        //     if (i == P) {
-        //         share = t;
-        //     }
-        //     else if (i == (P-1)) {
-        //         share = P;
-        //     }
-        //     else if (i < (P-1)) {
-        //         share = i+1;
-        //     }
-        //     xs = Arrays.copyOfRange(xs, 0, share);
-        //     ys = Arrays.copyOfRange(ys, 0, share);
-        //     BigInteger[] priorPoly = getPolynomial(xs, ys, prime);
-        //     result[i-1] = priorPoly[(priorPoly.length-1)]; 
-        //     ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));
-        // }
         BigInteger[] result = new BigInteger[P];
         BigInteger[] priorPoly = null;
         int share = 0;

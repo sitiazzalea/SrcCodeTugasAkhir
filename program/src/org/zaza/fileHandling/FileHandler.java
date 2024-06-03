@@ -55,62 +55,94 @@ public class FileHandler {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        final int chunkNumber = 2;
-        final int t = 3; //unsur SSS: threshold
-        final int n = 7; // unsur SSS: jumlah share
-        byte[] fromFile;
+    public static void putSharesInFiles(File file, int P, int t, int n) {
+        byte[] fromFile = {};
         try {
-            File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza.txt");
-            // System.out.println("File name: " + secretFile.getName());
-            // System.out.println("File path: " + secretFile.getPath());
-            // System.out.println("File absolute path: " + secretFile.getAbsolutePath());
-            // System.out.println("parent file path: " + secretFile.getParent());
-            // System.out.println("File Extension: " + getExtensionFile(secretFile));
-            // System.out.println("File name without extension: " + getNameWithoutExtension(secretFile));
-            FileInputStream fis = new FileInputStream(secretFile);
+            FileInputStream fis = new FileInputStream(file);
             fromFile = fis.readAllBytes();
             fis.close();
-            // HelperTools.printUnsignedByteArray(fromFile);
+            System.out.println("FileInputStream Operation Success");
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("error message in FileInputStream: " + e.getMessage());
+        }
 
-            List<List<TLV>> parts = PRESSHandler.dealSecret(fromFile, chunkNumber, t, n);
-            // List<List<TLV>> parts2 = new ArrayList<List<TLV>>();
-            // parts2.add(parts.get(1));
-            // parts2.add(parts.get(4));
-            // parts2.add(parts.get(0));
-            // parts2.add(parts.get(6));
-            // parts2.add(parts.get(3));
+        List<List<TLV>> parts = PRESSHandler.dealSecret(fromFile, P, t, n);
 
-            // System.out.println("New path for deal secret result: " + getNewPathForDealSecretResult(secretFile));
-
-            // String newPathForDealSecretResult = getNewPathForDealSecretResult(secretFile);
-
+        try {
             for (int i = 0; i < parts.size(); i++) {
                 List<TLV> part = parts.get(i);
-                String path = dealSecretResultNumerator(secretFile, i+1);
+                String path = dealSecretResultNumerator(file, i+1);
                 FileOutputStream fos = new FileOutputStream(path);
                 ObjectOutputStream out = new ObjectOutputStream(fos);
                 out.writeObject(part);
                 out.flush();
                 out.close();
+
+                System.out.println("OPERATION SUCCESS in FileOutputStream");
             }
-                
-            // byte[] recoveredSecretInBytes = PRESSHandler.reconstructData(parts2);
-            // System.out.println("Recovered secret in bytes: ");
-            // HelperTools.printUnsignedByteArray(recoveredSecretInBytes);
-
-            // if (Arrays.equals(fromFile, recoveredSecretInBytes)) {               
-            //     System.out.println("Hasil recovered secret SAMA dengan secret");            
-            // }
-            // else {
-            //     System.out.println("Hasil recovered secret TIDAK SAMA dengan secret");            
-            // }
-
-            System.out.println("OPERATION SUCCESS");
+            
         } catch (Exception e) {
             // TODO: handle exception
-            System.out.println("error message: " + e.getMessage());
+            System.out.println("error message in file output stream: " + e.getMessage());
         }
 
+    }
+
+    private static List<List<TLV>> collectedParts(File[] givenFiles) {
+        List<List<TLV>> result = new ArrayList<List<TLV>>();
+
+        try {
+            for (int i = 0; i < givenFiles.length; i++) {
+                FileInputStream fis = new FileInputStream(givenFiles[i]);
+                ObjectInputStream in = new ObjectInputStream(fis);
+                List<TLV> deserializedTLV = (List<TLV>)in.readObject();
+                result.add(deserializedTLV);
+                in.close();
+            }
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("Error in collecting part: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        final int chunkNumber = 2;
+        final int t = 3; //unsur SSS: threshold
+        final int n = 7; // unsur SSS: jumlah share
+        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza.txt");
+        byte[] fromFile = {};
+        try {
+            FileInputStream secretFis = new FileInputStream(secretFile);
+            fromFile = secretFis.readAllBytes();
+            secretFis.close();
+            System.out.println("Read file and transform it to byte array operation SUCCESS");
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("Problem in Read file and transform it to byte array operation: " + e.getMessage());
+        }
+ 
+        // putSharesInFiles(secretFile, chunkNumber, t, n);
+    
+
+        File input1 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza2.txt");
+        File input2 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza7.txt");
+        File input3 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza4.txt");
+        File input4 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza1.txt");
+        File[] inputs = {input1, input2, input3, input4};
+        List<List<TLV>> parts2 = collectedParts(inputs);
+
+        byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
+        // HelperTools.printUnsignedByteArray(resultReconstructData);
+
+        if (Arrays.equals(fromFile, resultReconstructData)) {
+            System.out.println("Hasil file rahasia SAMA dengan hasil file rekonstruksi");
+        }
+        else {
+            System.out.println("Hasil file rahasia TIDAK SAMA dengan hasil file rekonstruksi");
+        }
     }
 }

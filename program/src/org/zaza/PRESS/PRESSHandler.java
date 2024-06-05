@@ -224,6 +224,8 @@ public class PRESSHandler {
     // }
 
     public static List<List<TLV>> dealPhase(BigInteger[] chunks, BigInteger primeNum, int secretLength, int P, int t, int n) {
+        long start = System.nanoTime();
+
         BigInteger[] polynomial = generatePoly(primeNum, 1, chunks[0]);
         BigInteger[] shares = null;
         for (int i = 1; i <= P; i++) {
@@ -281,14 +283,39 @@ public class PRESSHandler {
             tlvShares.add(tlvPerShare);
         }
 
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        // System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %,d nanosecond\n",  timeElapsed);
         return tlvShares;
     }
 
     public static List<List<TLV>> dealSecret(byte[] arr, int P, int t, int n) {
+        long start = System.nanoTime();
+
         BigInteger[] chunks = split(arr, P);
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call split(): %,d nanosecond\n",  timeElapsed);
+
+        start = System.nanoTime();
         BigInteger largestChunk = findLargestChunk(chunks);
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call findLargestChunk(): %,d nanosecond\n",  timeElapsed);
+
+        start = System.nanoTime();
         BigInteger prime = nextPrime(largestChunk);
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call nextPrime(): %,d nanosecond\n",  timeElapsed);
+
+
+        start = System.nanoTime();
         List<List<TLV>> result = PRESSHandler.dealPhase(chunks, prime, arr.length, P, t, n);
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call dealPhase(): %,d nanosecond\n",  timeElapsed);
+
         return result;
     }
 
@@ -336,6 +363,8 @@ public class PRESSHandler {
     // }
 
     public static byte[] reconstructData(List<List<TLV>> parts) {
+        long start = System.nanoTime();
+
         BigInteger[] xs = new BigInteger[parts.size()];
         BigInteger[] ys = new BigInteger[parts.size()];
         BigInteger prime = null;
@@ -423,6 +452,10 @@ public class PRESSHandler {
                 ys = reverse(Arrays.copyOfRange(priorPoly, 0, (priorPoly.length-1)));    
             }
         }
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        System.out.println("Elapsed time for reconstruct data in reconstructData: " + timeElapsed + " nanosecond");
+
         return join(result, HelperTools.bytesToint(secretLengthTLV.getValueAsBinary()));
     }
     // TODO di BUKUTA = PRESS require multiple Lagrange compared to SSS only once

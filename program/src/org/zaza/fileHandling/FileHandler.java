@@ -46,6 +46,7 @@ public class FileHandler {
         
         StringBuilder sb = new StringBuilder(newPathForDealSecretResult);
         sb.append(getNameWithoutExtension(file));
+        sb.append("_");
         sb.append(numShare);
         sb.append(".");
         sb.append(getExtensionFile(file));
@@ -56,20 +57,32 @@ public class FileHandler {
     }
 
     public static void putSharesInFiles(File file, int P, int t, int n) {
+        long start = System.nanoTime();
+
         byte[] fromFile = {};
         try {
             FileInputStream fis = new FileInputStream(file);
             fromFile = fis.readAllBytes();
             fis.close();
-            System.out.println("FileInputStream Operation Success");
+            // System.out.println("FileInputStream Operation Success");
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("error message in FileInputStream: " + e.getMessage());
         }
 
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: Elapsed time to load file: %d nanosecond\n",  timeElapsed);
+        
+        start = System.nanoTime();
         List<List<TLV>> parts = PRESSHandler.dealSecret(fromFile, P, t, n);
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %d nanosecond\n",  timeElapsed);
 
+        start = System.nanoTime();
         try {
+            
             for (int i = 0; i < parts.size(); i++) {
                 List<TLV> part = parts.get(i);
                 String path = dealSecretResultNumerator(file, i+1);
@@ -79,24 +92,74 @@ public class FileHandler {
                 out.flush();
                 out.close();
 
-                System.out.println("OPERATION SUCCESS in FileOutputStream");
+                // System.out.println("OPERATION SUCCESS in FileOutputStream");
             }
             
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("error message in file output stream: " + e.getMessage());
         }
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "putSharesInFiles: Elapsed time to write file: %d nanosecond\n",  timeElapsed);
+
 
     }
 
-    private static List<List<TLV>> collectedParts(File[] givenFiles) {
+    private static List<List<TLV>> collectedParts(File[] givenFiles) throws Exception {
         List<List<TLV>> result = new ArrayList<List<TLV>>();
 
         try {
+            int threshold = 0;
+            int chunkNumber = 0;
+            BigInteger primeNumber = BigInteger.ZERO;
             for (int i = 0; i < givenFiles.length; i++) {
                 FileInputStream fis = new FileInputStream(givenFiles[i]);
                 ObjectInputStream in = new ObjectInputStream(fis);
                 List<TLV> deserializedTLV = (List<TLV>)in.readObject();
+
+                for (int j = 0; j < deserializedTLV.size(); j++) {
+                    if (deserializedTLV.get(j).getType() == deserializedTLV.get(j).TYPE_THRESHOLD) {
+                        if (i == 0) { //first share
+                            threshold = HelperTools.bytesToint(deserializedTLV.get(j).getValueAsBinary());
+                            if (threshold > givenFiles.length) {
+                                // throw ExceptionShareBelowThreshold                           
+                            }                      
+                        }
+                        else {
+                            if (threshold != HelperTools.bytesToint(deserializedTLV.get(j).getValueAsBinary())) {
+                                throw new ExceptionDifferentThreshold("Different threshold number among files detected");
+                            }
+                        }
+                    }
+
+                    else if (deserializedTLV.get(j).getType() == deserializedTLV.get(j).TYPE_CHUNK_NUMBER) {
+                        if (i == 0) { //first share
+                            chunkNumber = HelperTools.bytesToint(deserializedTLV.get(j).getValueAsBinary());
+                         
+                        }
+                        else {
+                            if (chunkNumber != HelperTools.bytesToint(deserializedTLV.get(j).getValueAsBinary())) {
+                                throw  new ExceptionDifferentChunkNumber("Different chunk numbers on the files detected");
+                                
+                            }
+                        }
+                    }
+
+                    else if (deserializedTLV.get(j).getType() == deserializedTLV.get(j).TYPE_PRIME) {
+                        BigInteger tmpPrime = new BigInteger(deserializedTLV.get(j).getValueAsBinary()); 
+                        if (i == 0) { //first share
+                            primeNumber = tmpPrime;
+                         
+                        }
+                        else {
+                            if (!primeNumber.equals(tmpPrime)) {
+                                throw new ExceptionDifferentPrimeNumber("Different prime numbers on files detected");
+                            }
+                        }
+                    }
+                }
+
                 result.add(deserializedTLV);
                 in.close();
             }
@@ -109,40 +172,30 @@ public class FileHandler {
         return result;
     }
 
-    public static void main(String[] args) {
-        final int chunkNumber = 2;
-        final int t = 3; //unsur SSS: threshold
-        final int n = 7; // unsur SSS: jumlah share
-        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza.txt");
-        byte[] fromFile = {};
+    private static String namingReconstructionFile (File secretFile) {
+        StringBuilder forResultFileName = new StringBuilder("HasilReconstruct_");
+        forResultFileName.append(getNameWithoutExtension(secretFile));
+        forResultFileName.append(".");
+        forResultFileName.append(getExtensionFile(secretFile));
+        return forResultFileName.toString();
+    }
+
+    public static void writeFileFromShares(File[] inputs, File secretFile) throws Exception {
+        List<List<TLV>> parts2 = collectedParts(inputs);
+        byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
+
+        String resultFileName = namingReconstructionFile(secretFile);
+
         try {
-            FileInputStream secretFis = new FileInputStream(secretFile);
-            fromFile = secretFis.readAllBytes();
-            secretFis.close();
-            System.out.println("Read file and transform it to byte array operation SUCCESS");
+            FileOutputStream fos = new FileOutputStream(resultFileName);
+            fos.write(resultReconstructData);
+            fos.flush();
+            fos.close();
+            System.out.println("Write to file operation SUCCEED");
         } catch (Exception e) {
             // TODO: handle exception
-            System.out.println("Problem in Read file and transform it to byte array operation: " + e.getMessage());
-        }
- 
-        // putSharesInFiles(secretFile, chunkNumber, t, n);
-    
-
-        File input1 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza2.txt");
-        File input2 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza7.txt");
-        File input3 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza4.txt");
-        File input4 = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\fileHandling\\zaza1.txt");
-        File[] inputs = {input1, input2, input3, input4};
-        List<List<TLV>> parts2 = collectedParts(inputs);
-
-        byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
-        // HelperTools.printUnsignedByteArray(resultReconstructData);
-
-        if (Arrays.equals(fromFile, resultReconstructData)) {
-            System.out.println("Hasil file rahasia SAMA dengan hasil file rekonstruksi");
-        }
-        else {
-            System.out.println("Hasil file rahasia TIDAK SAMA dengan hasil file rekonstruksi");
+            System.out.println("Error in writing reconstruction result to file: " + e.getMessage());
         }
     }
+
 }

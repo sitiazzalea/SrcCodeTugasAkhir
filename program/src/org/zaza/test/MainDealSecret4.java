@@ -5,7 +5,7 @@ import org.zaza.PRESS.PRESSHandler;
 import org.zaza.fileHandling.FileHandler;
 import org.zaza.utils.HelperTools;
 import org.zaza.utils.TLV;;
-public class MainDealSecret1 {
+public class MainDealSecret4 {
     public static void main(String[] args) throws Exception {
         File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\usedTestCase\\smiley - 2345-P2t3.png");
         int P = 2;

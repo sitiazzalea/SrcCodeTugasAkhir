@@ -48,8 +48,8 @@ public class FileHandler {
         sb.append(getNameWithoutExtension(file));
         sb.append("_");
         sb.append(numShare);
-        sb.append(".");
-        sb.append(getExtensionFile(file));
+        sb.append(".PRESS");
+        // sb.append(getExtensionFile(file));
         // String path = sb.toString();
             // System.out.println(path);          
         System.out.println(sb.toString());
@@ -72,13 +72,13 @@ public class FileHandler {
 
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to load file: %d nanosecond\n",  timeElapsed);
+        System.out.printf( "putSharesInFiles: Elapsed time to load file: %,d nanosecond\n",  timeElapsed);
         
         start = System.nanoTime();
         List<List<TLV>> parts = PRESSHandler.dealSecret(fromFile, P, t, n);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %d nanosecond\n",  timeElapsed);
+        System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %,d nanosecond\n",  timeElapsed);
 
         start = System.nanoTime();
         try {
@@ -101,7 +101,7 @@ public class FileHandler {
         }
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to write file: %d nanosecond\n",  timeElapsed);
+        System.out.printf( "putSharesInFiles: Elapsed time to write file: %,d nanosecond\n",  timeElapsed);
 
 
     }
@@ -180,14 +180,14 @@ public class FileHandler {
         return forResultFileName.toString();
     }
 
-    public static void writeFileFromShares(File[] inputs, File secretFile) throws Exception {
+    public static void writeFileFromShares(File[] inputs, File resultFile) throws Exception {
         List<List<TLV>> parts2 = collectedParts(inputs);
         byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
 
-        String resultFileName = namingReconstructionFile(secretFile);
+        // String resultFileName = namingReconstructionFile(resultFile);
 
         try {
-            FileOutputStream fos = new FileOutputStream(resultFileName);
+            FileOutputStream fos = new FileOutputStream(resultFile);
             fos.write(resultReconstructData);
             fos.flush();
             fos.close();

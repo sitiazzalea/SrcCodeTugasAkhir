@@ -106,7 +106,7 @@ public class FileHandler {
 
     }
 
-    private static List<List<TLV>> collectedParts(File[] givenFiles) throws Exception {
+    private static List<List<TLV>> collectParts(File[] givenFiles) throws Exception {
         List<List<TLV>> result = new ArrayList<List<TLV>>();
 
         try {
@@ -181,21 +181,40 @@ public class FileHandler {
     }
 
     public static void writeFileFromShares(File[] inputs, File resultFile) throws Exception {
-        List<List<TLV>> parts2 = collectedParts(inputs);
+        long startOfThisFunction = System.nanoTime();
+
+        long start = System.nanoTime();
+        List<List<TLV>> parts2 = collectParts(inputs);
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        System.out.printf( "writeFileFromShares: Elapsed time to call collectedParts(): %,d nanosecond\n",  timeElapsed);
+
+        start = System.nanoTime();
         byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
+        finish = System.nanoTime();
+        timeElapsed = finish - start;
+        System.out.printf( "writeFileFromShares: Elapsed time to call reconstructData(): %,d nanosecond\n",  timeElapsed);
 
         // String resultFileName = namingReconstructionFile(resultFile);
 
         try {
+            start = System.nanoTime();
             FileOutputStream fos = new FileOutputStream(resultFile);
             fos.write(resultReconstructData);
             fos.flush();
             fos.close();
-            System.out.println("Write to file operation SUCCEED");
+            finish = System.nanoTime();
+            timeElapsed = finish - start;
+            System.out.printf( "writeFileFromShares: Elapsed time to write data: %,d nanosecond\n",  timeElapsed);
+                // System.out.println("Write to file operation SUCCEED");
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println("Error in writing reconstruction result to file: " + e.getMessage());
         }
+
+        long endOfThisFunction = System.nanoTime();
+        long elapsedTimeInFunction = endOfThisFunction - startOfThisFunction;
+        System.out.printf( "writeFileFromShares: Elapsed time in function: %,d nanosecond\n",  elapsedTimeInFunction);
     }
 
 }

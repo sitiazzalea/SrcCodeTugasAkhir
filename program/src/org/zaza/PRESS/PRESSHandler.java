@@ -6,7 +6,7 @@ import org.zaza.utils.*;;
 
 public class PRESSHandler {
     
-    private static BigInteger[] split(byte[] secretInByte, int chunks) {
+    private static BigInteger[] splitSecret(byte[] secretInByte, int chunks) {
         BigInteger[] result = new BigInteger[chunks];
         int counter = 0;
         int i = 0;
@@ -55,7 +55,7 @@ public class PRESSHandler {
         return joinedData;
     }
 
-    private static BigInteger nextPrime(BigInteger input) {
+    private static BigInteger findNextPrimeAfterLargestChunk(BigInteger input) {
         BigInteger result = input.nextProbablePrime();
         return result;
     }
@@ -223,7 +223,7 @@ public class PRESSHandler {
     //     return shares;
     // }
 
-    public static List<List<TLV>> dealPhase(BigInteger[] chunks, BigInteger primeNum, int secretLength, int P, int t, int n) {
+    public static List<List<TLV>> computeShare(BigInteger[] chunks, BigInteger primeNum, int secretLength, int P, int t, int n) {
         long start = System.nanoTime();
 
         BigInteger[] polynomial = generatePoly(primeNum, 1, chunks[0]);
@@ -305,7 +305,7 @@ public class PRESSHandler {
     public static List<List<TLV>> dealSecret(byte[] arr, int P, int t, int n) {
         long start = System.nanoTime();
 
-        BigInteger[] chunks = split(arr, P);
+        BigInteger[] chunks = splitSecret(arr, P);
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call split(): %,d nanosecond\n",  timeElapsed);
@@ -317,14 +317,14 @@ public class PRESSHandler {
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call findLargestChunk(): %,d nanosecond, largest chunk: %s\n",  timeElapsed, largestChunk.toString());
 
         start = System.nanoTime();
-        BigInteger prime = nextPrime(largestChunk);
+        BigInteger prime = findNextPrimeAfterLargestChunk(largestChunk);
         finish = System.nanoTime();
         timeElapsed = finish - start;
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call nextPrime(): %,d nanosecond, prime number: %s\n",  timeElapsed, prime.toString());
 
 
         start = System.nanoTime();
-        List<List<TLV>> result = PRESSHandler.dealPhase(chunks, prime, arr.length, P, t, n);
+        List<List<TLV>> result = PRESSHandler.computeShare(chunks, prime, arr.length, P, t, n);
         finish = System.nanoTime();
         timeElapsed = finish - start;
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call dealPhase(): %,d nanosecond\n",  timeElapsed);

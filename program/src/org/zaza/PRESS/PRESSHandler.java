@@ -55,7 +55,7 @@ public class PRESSHandler {
         return joinedData;
     }
 
-    private static BigInteger findNextPrimeAfterLargestChunk(BigInteger input) {
+    private static BigInteger findPrimeAfterLargestChunk(BigInteger input) {
         BigInteger result = input.nextProbablePrime();
         return result;
     }
@@ -317,7 +317,7 @@ public class PRESSHandler {
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call findLargestChunk(): %,d nanosecond, largest chunk: %s\n",  timeElapsed, largestChunk.toString());
 
         start = System.nanoTime();
-        BigInteger prime = findNextPrimeAfterLargestChunk(largestChunk);
+        BigInteger prime = findPrimeAfterLargestChunk(largestChunk);
         finish = System.nanoTime();
         timeElapsed = finish - start;
         System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call nextPrime(): %,d nanosecond, prime number: %s\n",  timeElapsed, prime.toString());

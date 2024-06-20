@@ -7,9 +7,9 @@ import org.zaza.utils.HelperTools;
 import org.zaza.utils.TLV;
 public class MainDealSecret3 {
     public static void main(String[] args) throws Exception {
-        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\usedTestCase\\smiley-4652.png");
-        int P = 4;
-        int t = 5;
+        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\lorem-2345-P3t4.txt");
+        int P = 3;
+        int t = 4;
         int n = 7;
         FileHandler.putSharesInFiles(secretFile, P, t, n);
     }

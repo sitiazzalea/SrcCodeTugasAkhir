@@ -7,7 +7,7 @@ import org.zaza.utils.HelperTools;
 import org.zaza.utils.TLV;
 public class MainDealSecret6 {
     public static void main(String[] args) throws Exception {
-        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\lorem-2345-P4t5.txt");
+        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\lorem-931-P4t5.txt");
         int P = 4;
         int t = 5;
         int n = 7;

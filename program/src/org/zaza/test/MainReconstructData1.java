@@ -16,7 +16,7 @@ public class MainReconstructData1 {
 
         File[] inputs = {input1, input2, input3, input4, input5};
 
-        File hasilReconstruct = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\HasilRekonstruksi-lorem-931-P3t4-p3.txt");
+        File hasilReconstruct = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\HasilRekonstruksi-lorem-931-P3t4-p5.txt");
 
         FileHandler.writeFileFromShares(inputs, hasilReconstruct);
 

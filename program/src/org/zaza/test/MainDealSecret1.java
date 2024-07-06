@@ -7,9 +7,9 @@ import org.zaza.utils.HelperTools;
 import org.zaza.utils.TLV;;
 public class MainDealSecret1 {
     public static void main(String[] args) throws Exception {
-        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\lorem-931-P2t3.txt");
+        File secretFile = new File("C:\\Users\\Azzalea\\Documents\\JavaProject\\TugasAkhir\\program\\src\\org\\zaza\\test\\text\\lorem-931.txt");
         int P = 2;
-        int t = 3;
+        int t = 6;
         int n = 7;
         FileHandler.putSharesInFiles(secretFile, P, t, n);
     }

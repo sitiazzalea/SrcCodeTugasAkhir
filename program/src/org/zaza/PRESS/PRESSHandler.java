@@ -271,7 +271,7 @@ public class PRESSHandler {
             // public static final byte TYPE_X_COORDINATE = 5;
             // public static final byte TYPE_Y_SHARE = 6;
             byte[] thresholdBytes = new byte[Integer.BYTES];
-            thresholdBytes = HelperTools.intToBytes(t); //max threshold is 255 TO DO DI BUKUTA: tulis maksimum threshold
+            thresholdBytes = HelperTools.intToBytes(t); //max threshold is 255 
             TLV threshold = new TLV(TLV.TYPE_THRESHOLD, thresholdBytes.length, thresholdBytes);
 
             byte[] chunkNumberBytes = new byte[Integer.BYTES];

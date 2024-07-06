@@ -72,13 +72,13 @@ public class FileHandler {
 
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to load file: %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: Elapsed time to load file: %,d nanosecond\n",  timeElapsed);
         
         start = System.nanoTime();
         List<List<TLV>> parts = PRESSHandler.dealSecret(fromFile, P, t, n);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: Elapsed time to call dealSecret: %,d nanosecond\n",  timeElapsed);
 
         start = System.nanoTime();
         try {
@@ -101,7 +101,7 @@ public class FileHandler {
         }
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time to write file: %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: Elapsed time to write file: %,d nanosecond\n",  timeElapsed);
 
 
     }
@@ -187,13 +187,13 @@ public class FileHandler {
         List<List<TLV>> parts2 = collectParts(inputs);
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "writeFileFromShares: Elapsed time to call collectedParts(): %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "writeFileFromShares: Elapsed time to call collectedParts(): %,d nanosecond\n",  timeElapsed);
 
         start = System.nanoTime();
         byte[] resultReconstructData = PRESSHandler.reconstructData(parts2);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "writeFileFromShares: Elapsed time to call reconstructData(): %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "writeFileFromShares: Elapsed time to call reconstructData(): %,d nanosecond\n",  timeElapsed);
 
         // String resultFileName = namingReconstructionFile(resultFile);
 
@@ -205,7 +205,7 @@ public class FileHandler {
             fos.close();
             finish = System.nanoTime();
             timeElapsed = finish - start;
-            System.out.printf( "writeFileFromShares: Elapsed time to write data: %,d nanosecond\n",  timeElapsed);
+            // System.out.printf( "writeFileFromShares: Elapsed time to write data: %,d nanosecond\n",  timeElapsed);
                 // System.out.println("Write to file operation SUCCEED");
         } catch (Exception e) {
             // TODO: handle exception
@@ -214,7 +214,7 @@ public class FileHandler {
 
         long endOfThisFunction = System.nanoTime();
         long elapsedTimeInFunction = endOfThisFunction - startOfThisFunction;
-        System.out.printf( "writeFileFromShares: Elapsed time in function: %,d nanosecond\n",  elapsedTimeInFunction);
+        // System.out.printf( "writeFileFromShares: Elapsed time in function: %,d nanosecond\n",  elapsedTimeInFunction);
     }
 
 }

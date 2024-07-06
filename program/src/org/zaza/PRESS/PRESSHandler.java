@@ -258,7 +258,7 @@ public class PRESSHandler {
         }
         sb.append("total size: ");
         sb.append(totalSize);
-        System.out.println(sb.toString() );
+        // System.out.println(sb.toString() );
 
         // Put final result into list of TLV
         List<List<TLV>> tlvShares = new ArrayList<List<TLV>>();
@@ -298,7 +298,7 @@ public class PRESSHandler {
 
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: Elapsed time in dealPhase: %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: Elapsed time in dealPhase: %,d nanosecond\n",  timeElapsed);
         return tlvShares;
     }
 
@@ -308,26 +308,26 @@ public class PRESSHandler {
         BigInteger[] chunks = splitSecret(arr, P);
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call split(): %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call split(): %,d nanosecond\n",  timeElapsed);
 
         start = System.nanoTime();
         BigInteger largestChunk = findLargestChunk(chunks);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call findLargestChunk(): %,d nanosecond, largest chunk: %s\n",  timeElapsed, largestChunk.toString());
+        // System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call findLargestChunk(): %,d nanosecond, largest chunk: %s\n",  timeElapsed, largestChunk.toString());
 
         start = System.nanoTime();
         BigInteger prime = findPrimeAfterLargestChunk(largestChunk);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call nextPrime(): %,d nanosecond, prime number: %s\n",  timeElapsed, prime.toString());
+        // System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call nextPrime(): %,d nanosecond, prime number: %s\n",  timeElapsed, prime.toString());
 
 
         start = System.nanoTime();
         List<List<TLV>> result = PRESSHandler.computeShare(chunks, prime, arr.length, P, t, n);
         finish = System.nanoTime();
         timeElapsed = finish - start;
-        System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call dealPhase(): %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "putSharesInFiles: dealSecret: Elapsed time to call dealPhase(): %,d nanosecond\n",  timeElapsed);
 
         return result;
     }
@@ -467,7 +467,7 @@ public class PRESSHandler {
         }
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.printf( "Elapsed time in reconstructData(): %,d nanosecond\n",  timeElapsed);
+        // System.out.printf( "Elapsed time in reconstructData(): %,d nanosecond\n",  timeElapsed);
 
         return join(result, HelperTools.bytesToint(secretLengthTLV.getValueAsBinary()));
     }
